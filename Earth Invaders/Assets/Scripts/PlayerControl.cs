@@ -5,7 +5,8 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 
 public class PlayerControl : MonoBehaviour
-{
+{ 
+    private SpriteRenderer spriteRenderer;
     private float movementSpeed = 2f;
     private float segmentsPerUnityUnit = 2f;
     private float padding = 0.5f;
@@ -16,6 +17,9 @@ public class PlayerControl : MonoBehaviour
     private float xMax;
     private float yMin;
     private float yMax;
+    private Vector3 tempTransform;
+    private Sprite[] sprites;
+    private int currentSprite = 1;
 
     public void SetMovementSpeed(float speed)
     {
@@ -33,16 +37,27 @@ public class PlayerControl : MonoBehaviour
     }
     void Start()
     {
+        tempTransform = transform.position;
         transform.parent = null;
         xPos = transform.position.x;
         yPos = transform.position.y;
+        sprites = GetComponent<Alien>().GetSprites();
         SetupMoveBoundaries();
-        GetComponent<SpriteRenderer>().color = Color.green;
+        SetupSprite();
     }
-    
+
+    private void SetupSprite()
+    {
+        spriteRenderer = GetComponent<SpriteRenderer>();
+        spriteRenderer.sortingOrder = 1;
+        spriteRenderer.color = Color.green;
+        spriteRenderer.sprite = sprites[0];
+    }
+
     void Update()
     {
         Move();
+        Animate();
     }
 
     private void Move()
@@ -58,8 +73,18 @@ public class PlayerControl : MonoBehaviour
         var newX = Mathf.RoundToInt(xPos * segmentsPerUnityUnit) / segmentsPerUnityUnit;
         var newY = Mathf.RoundToInt(yPos * segmentsPerUnityUnit) / segmentsPerUnityUnit;
         
-        transform.position = new Vector2(newX, newY); 
+        transform.position = new Vector3(newX, newY); 
+        
+    }
 
+    private void Animate()
+    {
+        if (transform.position != tempTransform)
+        {
+            currentSprite  = currentSprite * -1;
+            spriteRenderer.sprite = sprites[(currentSprite + 1) / 2];
+            tempTransform = transform.position;
+        }
     }
 
     private void SetupMoveBoundaries()

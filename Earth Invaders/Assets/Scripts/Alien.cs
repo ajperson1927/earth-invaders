@@ -8,6 +8,7 @@ public class Alien : MonoBehaviour
     [SerializeField] private float movementSpeed = 2f;
     [SerializeField] private float segmentsPerUnityUnit = 2f;
     [SerializeField] private float padding = 0.5f;
+    [SerializeField] Sprite[] sprites = new Sprite[2];
     
     void Start()
     {
@@ -28,5 +29,10 @@ public class Alien : MonoBehaviour
             playerControl.SetSegmentsPerUnityUnit(segmentsPerUnityUnit);
             playerControl.SetPadding(padding);
         }
+    }
+
+    public Sprite[] GetSprites()
+    {
+        return sprites;
     }
 }
