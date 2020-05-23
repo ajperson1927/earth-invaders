@@ -9,6 +9,7 @@ public class Alien : MonoBehaviour
     [SerializeField] private float segmentsPerUnityUnit = 2f;
     [SerializeField] private float padding = 0.5f;
     [SerializeField] Sprite[] sprites = new Sprite[2];
+    private int currentSprite = -1;
     
     void Start()
     {
@@ -34,5 +35,11 @@ public class Alien : MonoBehaviour
     public Sprite[] GetSprites()
     {
         return sprites;
+    }
+
+    public void SwitchSprite()
+    {
+        currentSprite = currentSprite * -1;
+        GetComponent<SpriteRenderer>().sprite = sprites[(currentSprite + 1) / 2];
     }
 }

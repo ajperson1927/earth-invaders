@@ -19,7 +19,7 @@ public class PlayerControl : MonoBehaviour
     private float yMax;
     private Vector3 tempTransform;
     private Sprite[] sprites;
-    private int currentSprite = 1;
+    private int currentSprite = -1;
 
     public void SetMovementSpeed(float speed)
     {
@@ -51,7 +51,7 @@ public class PlayerControl : MonoBehaviour
         spriteRenderer = GetComponent<SpriteRenderer>();
         spriteRenderer.sortingOrder = 1;
         spriteRenderer.color = Color.green;
-        spriteRenderer.sprite = sprites[0];
+        spriteRenderer.sprite = sprites[(currentSprite + 1) / 2];
     }
 
     void Update()

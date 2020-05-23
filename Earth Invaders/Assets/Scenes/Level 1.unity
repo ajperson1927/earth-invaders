@@ -170,14 +170,13 @@ MonoBehaviour:
   - {fileID: 3872865165759535637, guid: 022a61bebb8ed11c18700698f14413d0, type: 3}
   - {fileID: 3872865165759535637, guid: 022a61bebb8ed11c18700698f14413d0, type: 3}
   - {fileID: 3872865165759535637, guid: 022a61bebb8ed11c18700698f14413d0, type: 3}
-  - {fileID: 3872865165759535637, guid: 022a61bebb8ed11c18700698f14413d0, type: 3}
   alienColumns: 5
   horizontalPadding: 1
   verticalPadding: 0
   distanceUpFromCenter: 1.5
-  sprites:
-  - {fileID: 0}
-  - {fileID: 0}
+  moveSpeed: 0.4
+  timeBetweenAliens: 0.01
+  distanceToWall: 1
 --- !u!1 &1882218300
 GameObject:
   m_ObjectHideFlags: 0

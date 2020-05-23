@@ -124,3 +124,6 @@ MonoBehaviour:
   movementSpeed: 2
   segmentsPerUnityUnit: 2
   padding: 0.5
+  sprites:
+  - {fileID: -2311659948842064771, guid: f642ec564522879759f57ea6b48d126d, type: 3}
+  - {fileID: 7364682651488144517, guid: f642ec564522879759f57ea6b48d126d, type: 3}
