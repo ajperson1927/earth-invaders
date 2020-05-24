@@ -9,6 +9,9 @@ public class Alien : MonoBehaviour
     [SerializeField] private float segmentsPerUnityUnit = 4f;
     [SerializeField] private float padding = 0.5f;
     [SerializeField] Sprite[] sprites = new Sprite[2];
+    [SerializeField] private GameObject laserPrefab;
+    [SerializeField] private float laserSpeed = 2f;
+
     private int currentSprite = -1;
     private Vector3 unroundedPos;
     private Color color;
@@ -71,5 +74,26 @@ public class Alien : MonoBehaviour
         tag = "Alien";
         GetComponent<SpriteRenderer>().color = color;
         Move(new Vector3(0,0,0));
+    }
+
+    private void OnCollisionEnter2D(Collision2D other)
+    {
+        if (other.gameObject.CompareTag("Enemy Bullet"))
+        {
+            Destroy(other.gameObject);
+            Destroy(gameObject);
+        }
+    }
+
+    public void Shoot()
+    {
+        if (CompareTag("Alien"))
+        {
+            GameObject laser = Instantiate(laserPrefab, transform.position, Quaternion.identity);
+            laser.tag = "Alien Laser";
+            laser.GetComponent<Rigidbody2D>().velocity = Vector2.down * laserSpeed;
+        }
+        
+        
     }
 }

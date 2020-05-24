@@ -5,6 +5,9 @@ TagManager:
   serializedVersion: 2
   tags:
   - Alien
+  - Enemy Bullet
+  - Alien Laser
+  - Player Laser
   layers:
   - Default
   - TransparentFX

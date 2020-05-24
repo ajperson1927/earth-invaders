@@ -2,10 +2,12 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 public class AlienController : MonoBehaviour
 {
     [SerializeField] private float segmentsPerUnityUnit = 4f;
+    [SerializeField] private float shootChance = 4f;
     [Header("Horizontal Properties:")]
     [SerializeField] private float horizontalPadding = 0.2f;
     [SerializeField] private float horizontalMoveSpeed = 5f;
@@ -27,7 +29,8 @@ public class AlienController : MonoBehaviour
     private Coroutine movingCoroutine;
     private bool movingDown = false;
     float currentPosition = 0;
-    private int timesRan = 0;
+    private float startPositionX;
+    private float startPositionY;
     
     void Start()
     {
@@ -58,25 +61,8 @@ public class AlienController : MonoBehaviour
 
     private void SpawnAliens()
     {
-        float startPositionX;
-        float startPositionY;
-        if (alienColumns % 2 == 0)
-        {
-            startPositionX = -((alienColumns - 1 ) / 2f) * (1 + horizontalPadding);
-        }
-        else
-        {
-            startPositionX = -((int)Math.Floor(alienColumns / 2f) * (1 + horizontalPadding));
-        }
-
-        if (alienRows.Count % 2 == 0)
-        {
-            startPositionY = -((alienRows.Count - 1) / 2f) * (1 + verticalPadding) - 1 - distanceUpFromCenter;
-        }
-        else
-        {
-            startPositionY = -((int) Math.Floor(alienRows.Count / 2f) * (1 + verticalPadding)) - 1 + distanceUpFromCenter;
-        }
+        CheckIfEvenOrOdd();
+        
         int i = alienRows.Count;
         foreach (var alien in alienRows)
         {
@@ -93,10 +79,29 @@ public class AlienController : MonoBehaviour
         }
     }
 
+    private void CheckIfEvenOrOdd()
+    {
+        if (alienColumns % 2 == 0)
+        {
+            startPositionX = -((alienColumns - 1) / 2f) * (1 + horizontalPadding);
+        }
+        else
+        {
+            startPositionX = -((int) Math.Floor(alienColumns / 2f) * (1 + horizontalPadding));
+        }
+
+        if (alienRows.Count % 2 == 0)
+        {
+            startPositionY = -((alienRows.Count - 1) / 2f) * (1 + verticalPadding) - 1 - distanceUpFromCenter;
+        }
+        else
+        {
+            startPositionY = -((int) Math.Floor(alienRows.Count / 2f) * (1 + verticalPadding)) - 1 + distanceUpFromCenter;
+        }
+    }
+
     private IEnumerator MoveAliens()
     {
-        float alienCount = 1;
-        
         while (!movingDown)
         {
             for (int i = 0; i <= alienRows.Count - 1; i++)
@@ -104,42 +109,60 @@ public class AlienController : MonoBehaviour
                 for (int j = alienColumns - 1; j >= 0; j--)
                 {
                     GameObject currentAlienObject = aliens[i, j];
-                    Alien currentAlien = currentAlienObject.GetComponent<Alien>();
-                    currentAlien.SwitchSprite();
-                    currentAlien.Move(new Vector3(horizontalMoveSpeed * moveDirection, 0, 0));
+                    if (currentAlienObject)
+                    {
+                        Alien currentAlien = currentAlienObject.GetComponent<Alien>();
+                        currentAlien.SwitchSprite();
+                        currentAlien.Move(new Vector3(horizontalMoveSpeed * moveDirection, 0, 0));
+
+                        Shoot(i, j, currentAlien);
+                    }
 
 
                     yield return new WaitForSeconds(timeBetweenHorizontalAliens);
                 }
             }
+            CheckIfEndReached();
+        }
+    }
 
+    private void CheckIfEndReached()
+    {
+        currentPosition += horizontalMoveSpeed * moveDirection;
+        if (moveDirection > 0 &&
+            currentPosition > 0 + (alienColumns * (1 + horizontalPadding)) / 2 - distanceToWall)
+        {
+            moveDirection = moveDirection * -1;
+            movingDown = true;
+            StartCoroutine(MoveDown());
+        }
+        else if (moveDirection < 0 &&
+                 currentPosition < 0 - (alienColumns * (1 + horizontalPadding)) / 2 + distanceToWall)
+        {
+            moveDirection = moveDirection * -1;
+            movingDown = true;
+            StartCoroutine(MoveDown());
+        }
+    }
 
+    private void Shoot(int i, int j, Alien currentAlien)
+    {
+        bool alienBelow = false;
+        for (int k = i - 1; k >= 0; k--)
+        {
+            GameObject testingAlien = aliens[k, j];
 
-            currentPosition += horizontalMoveSpeed * moveDirection;
-            Debug.Log(currentPosition);
-            if (moveDirection > 0 &&
-                currentPosition > 0 + (alienColumns * (1 + horizontalPadding)) / 2 - distanceToWall)
+            if (testingAlien)
             {
-                Debug.Log("switch");
-                moveDirection = moveDirection * -1;
-                movingDown = true;
-                StartCoroutine(MoveDown());
-
+                alienBelow = true;
             }
-            else if (moveDirection < 0 &&
-                     currentPosition < 0 - (alienColumns * (1 + horizontalPadding)) / 2 + distanceToWall)
-            {
-                Debug.Log("switch");
-                moveDirection = moveDirection * -1;
-                movingDown = true;
-                StartCoroutine(MoveDown());
-            }
+        }
 
-            timesRan++;
-            if (timesRan > 10000)
+        if (!alienBelow)
+        {
+            if (Random.Range(0f, 1f) <= 1f / shootChance)
             {
-                Debug.Log("infinite loop");
-                movingDown = true;
+                currentAlien.Shoot();
             }
         }
     }
@@ -150,7 +173,11 @@ public class AlienController : MonoBehaviour
         {
             for (int j = 0; j <= alienColumns -1; j++)
             {
-                aliens[i,j].GetComponent<Alien>().Move(new Vector3(0, -verticalMoveSpeed,0));
+                GameObject alien = aliens[i, j];
+                if (alien)
+                {
+                    alien.GetComponent<Alien>().Move(new Vector3(0, -verticalMoveSpeed,0));
+                }
             }
             yield return new WaitForSeconds(timeBetweenVerticalAliens);
         }

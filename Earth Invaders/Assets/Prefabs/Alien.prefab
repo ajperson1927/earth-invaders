@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 3872865165759535640}
   - component: {fileID: 3872865165759535642}
   - component: {fileID: 3872865165759535643}
+  - component: {fileID: 7875981252293920504}
   m_Layer: 0
   m_Name: Alien
   m_TagString: Untagged
@@ -128,3 +129,27 @@ MonoBehaviour:
   sprites:
   - {fileID: -2311659948842064771, guid: f642ec564522879759f57ea6b48d126d, type: 3}
   - {fileID: 7364682651488144517, guid: f642ec564522879759f57ea6b48d126d, type: 3}
+  laserPrefab: {fileID: 7855902124573992998, guid: a6ad206caa8d84d4f8a4729f286271af,
+    type: 3}
+  laserSpeed: 2
+--- !u!50 &7875981252293920504
+Rigidbody2D:
+  serializedVersion: 4
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3872865165759535637}
+  m_BodyType: 1
+  m_Simulated: 1
+  m_UseFullKinematicContacts: 1
+  m_UseAutoMass: 0
+  m_Mass: 1
+  m_LinearDrag: 0
+  m_AngularDrag: 0.05
+  m_GravityScale: 1
+  m_Material: {fileID: 0}
+  m_Interpolate: 0
+  m_SleepingMode: 1
+  m_CollisionDetection: 0
+  m_Constraints: 0
