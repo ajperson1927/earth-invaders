@@ -11,9 +11,12 @@ public class Alien : MonoBehaviour
     [SerializeField] Sprite[] sprites = new Sprite[2];
     private int currentSprite = -1;
     private Vector3 unroundedPos;
+    private Color color;
     
     void Start()
     {
+        tag = "Alien";
+        color = GetComponent<SpriteRenderer>().color;
         unroundedPos = transform.position;
         segmentsPerUnityUnit = GetComponentInParent<AlienController>().GetSegmentsPerUnityUnit();
     }
@@ -25,12 +28,13 @@ public class Alien : MonoBehaviour
 
     private void OnMouseDown()
     {
-        if (!GetComponent<PlayerControl>())
+        if (!GetComponent<PlayerController>())
         {
-            PlayerControl playerControl = gameObject.AddComponent<PlayerControl>();
-            playerControl.SetMovementSpeed(movementSpeed);
-            playerControl.SetSegmentsPerUnityUnit(segmentsPerUnityUnit);
-            playerControl.SetPadding(padding);
+            PlayerController playerController = gameObject.AddComponent<PlayerController>();
+            playerController.SetMovementSpeed(movementSpeed);
+            playerController.SetSegmentsPerUnityUnit(segmentsPerUnityUnit);
+            playerController.SetPadding(padding);
+            FindObjectOfType<LevelController>().AddNewPlayer(gameObject);
         }
     }
 
@@ -41,7 +45,7 @@ public class Alien : MonoBehaviour
         var newX = Mathf.RoundToInt(unroundedPos.x * segmentsPerUnityUnit) / segmentsPerUnityUnit;
         var newY = Mathf.RoundToInt(unroundedPos.y * segmentsPerUnityUnit) / segmentsPerUnityUnit;
 
-        if (!GetComponent<PlayerControl>())
+        if (CompareTag("Alien"))
         {
             transform.position = new Vector2(newX, newY);
         }
@@ -55,9 +59,17 @@ public class Alien : MonoBehaviour
     public void SwitchSprite()
     {
         currentSprite = currentSprite * -1;
-        if (!GetComponent<PlayerControl>())
+        if (CompareTag("Alien"))
         {
             GetComponent<SpriteRenderer>().sprite = sprites[(currentSprite + 1) / 2];
         }
+    }
+
+    public void RemovePlayer()
+    {
+        Destroy(GetComponent<PlayerController>());
+        tag = "Alien";
+        GetComponent<SpriteRenderer>().color = color;
+        Move(new Vector3(0,0,0));
     }
 }

@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class LevelController : MonoBehaviour
 {
-    
+    private GameObject playerObject;
     void Start()
     {
         
@@ -13,5 +13,14 @@ public class LevelController : MonoBehaviour
     void Update()
     {
         
+    }
+
+    public void AddNewPlayer(GameObject newPlayer)
+    {
+        if (playerObject)
+        {
+            playerObject.GetComponent<Alien>().RemovePlayer();
+        }
+        playerObject = newPlayer;
     }
 }

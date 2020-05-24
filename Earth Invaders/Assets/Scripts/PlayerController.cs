@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class PlayerControl : MonoBehaviour
+public class PlayerController : MonoBehaviour
 { 
     private SpriteRenderer spriteRenderer;
     private float movementSpeed = 2f;
@@ -37,6 +37,7 @@ public class PlayerControl : MonoBehaviour
     }
     void Start()
     {
+        tag = "Player";
         tempTransform = transform.position;
         transform.parent = null;
         xPos = transform.position.x;
