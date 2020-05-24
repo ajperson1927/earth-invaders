@@ -62,8 +62,8 @@ public class PlayerControl : MonoBehaviour
 
     private void Move()
     {
-        float inputX = Input.GetAxis("Horizontal") * Time.deltaTime * movementSpeed;
-        float inputY = Input.GetAxis("Vertical") * Time.deltaTime * movementSpeed;
+        float inputX = Input.GetAxis("Horizontal") * Time.deltaTime * movementSpeed * (1f + 1f / 4f);
+        float inputY = Input.GetAxis("Vertical") * Time.deltaTime * movementSpeed * (1f + 1f / 4f);
 
         xPos = Mathf.Clamp(xPos + inputX, xMin, xMax);
         yPos = Mathf.Clamp(yPos + inputY, yMin, yMax);
