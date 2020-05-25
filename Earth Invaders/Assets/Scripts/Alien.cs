@@ -92,6 +92,7 @@ public class Alien : MonoBehaviour
             GameObject laser = Instantiate(laserPrefab, transform.position, Quaternion.identity);
             laser.tag = "Alien Laser";
             laser.GetComponent<Rigidbody2D>().velocity = Vector2.down * laserSpeed;
+            FindObjectOfType<LaserDetector>().AddLaser(laser);
         }
         
         
