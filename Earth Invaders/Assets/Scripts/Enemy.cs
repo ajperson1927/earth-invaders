@@ -11,13 +11,17 @@ public class Enemy : MonoBehaviour
     [SerializeField] private bool isShooting = false;
     [SerializeField] private float verticalLaserRange = 3f;
     [SerializeField] private float horizontalLaserRange = 0.5f;
-
-    [SerializeField] private bool orderLasers = false;
     [SerializeField] private float moveSpeed = 5f;
+    [SerializeField] private float runDelay = 1f;
     
+    bool running = false;
     private bool currentlyShooting = false;
     private LaserDetector laserDetector;
-    
+    private Coroutine delayTimer;
+    private bool timerRunning = false;
+    private bool startTimer = false;
+    private bool avoiding = false;
+
     void Start()
     {
         laserDetector = FindObjectOfType<LaserDetector>();
@@ -30,9 +34,14 @@ public class Enemy : MonoBehaviour
             StartCoroutine(Shoot());
         }
 
-        if (!RunFromLasers())
+        RunFromLasers();
+        if (!running)
         {
             AvoidLasers();
+            if (!avoiding)
+            {
+                
+            }
         }
 
 
@@ -48,13 +57,73 @@ public class Enemy : MonoBehaviour
         currentlyShooting = false;
     }
 
+    private void RunFromLasers()
+    {
+        List<GameObject> closeLasers = new List<GameObject>();
+        
+        foreach (var laser in laserDetector.GetLasers())
+        {
+            float distanceBetween = laser.transform.position.y - transform.position.y;
+            if (distanceBetween < verticalLaserRange && distanceBetween > 0)
+            {
+                closeLasers.Add(laser);
+            }
+        }
+
+        int closestIndex = 0;
+        float closestDistance = 1000f;
+        bool doneRunning = true;
+        
+        for (int i = 0; i < closeLasers.Count; i++)
+        {
+            if (Mathf.Abs(closeLasers[i].transform.position.x - transform.position.x) < closestDistance)
+            {
+                if (Mathf.Abs(closeLasers[i].transform.position.x - transform.position.x) < horizontalLaserRange)
+                {
+                    running = true;
+                    doneRunning = false;
+                    startTimer = true;
+                    closestIndex = i;
+                    Debug.Log("Running");
+                }
+            }
+        }
+        
+
+        if (Mathf.Abs(closeLasers[closestIndex].transform.position.x - transform.position.x) > horizontalLaserRange)
+        {
+            doneRunning = true;
+            if (startTimer)
+            {
+                startTimer = false;
+                if (timerRunning)
+                {
+                    StopCoroutine(delayTimer);
+                    delayTimer = StartCoroutine(RunningTimer());
+                }
+                else
+                {
+                    delayTimer = StartCoroutine(RunningTimer());
+                }
+            }
+        }
+        if (closeLasers.Count > 2 && !doneRunning)
+        {
+            float avoidPosition = closeLasers[closestIndex].transform.position.x;
+            float newPosition = Mathf.MoveTowards(transform.position.x, avoidPosition, -moveSpeed * Time.deltaTime);
+            transform.position = new Vector2(newPosition, transform.position.y);
+        }
+
+        
+    }
+
     private void AvoidLasers()
     {
         List<GameObject> closeLasers = new List<GameObject>();
         foreach (var laser in laserDetector.GetLasers())
         {
             float distanceBetween = laser.transform.position.y - transform.position.y;
-            if (distanceBetween < verticalLaserRange && distanceBetween < 0) ;
+            if (distanceBetween < verticalLaserRange && distanceBetween > 0) ;
             {
                 closeLasers.Add(laser);
             }
@@ -78,49 +147,31 @@ public class Enemy : MonoBehaviour
             }
         }
 
-        float finalPosition = (orderedLasers[safeIndex].transform.position.x + orderedLasers[safeIndex - 1].transform.position.x) / 2f;
-        float newPosition = Mathf.MoveTowards(transform.position.x, finalPosition, moveSpeed * Time.deltaTime);
-        transform.position = new Vector2(newPosition, transform.position.y);
+        if (closeLasers.Count > 2)
+        {
+            avoiding = true;
+            float finalPosition = (orderedLasers[safeIndex].transform.position.x +
+                                   orderedLasers[safeIndex - 1].transform.position.x) / 2f;
+            float newPosition = Mathf.MoveTowards(transform.position.x, finalPosition, moveSpeed * Time.deltaTime);
+            transform.position = new Vector2(newPosition, transform.position.y);
+            Debug.Log("Avoiding");
+        }
+        else
+        {
+            avoiding = false;
+        }
     }
 
-    private bool RunFromLasers()
+    private void TargetEnemy()
     {
-        List<GameObject> closeLasers = new List<GameObject>();
-        foreach (var laser in laserDetector.GetLasers())
-        {
-            if (laser.transform.position.y - transform.position.y < verticalLaserRange)
-            {
-                closeLasers.Add(laser);
-            }
-        }
+        
+    }
 
-        int closestIndex = 0;
-        float closestDistance = 1000f;
-        bool running = false;
-        for (int i = 0; i < closeLasers.Count; i++)
-        {
-            if (Mathf.Abs(closeLasers[i].transform.position.x - transform.position.x) < closestDistance)
-            {
-                if (Mathf.Abs(closeLasers[i].transform.position.x - transform.position.x) < horizontalLaserRange)
-                {
-                    running = true;
-                    closestIndex = i;
-                }
-            }
-        }
-
-
-        if (Mathf.Abs(closeLasers[closestIndex].transform.position.x - transform.position.x) > horizontalLaserRange)
-        {
-            running = false;
-        }
-        if (closeLasers.Count > 2 && running)
-        {
-            float avoidPosition = closeLasers[closestIndex].transform.position.x;
-            float newPosition = Mathf.MoveTowards(transform.position.x, avoidPosition, -moveSpeed * Time.deltaTime);
-            transform.position = new Vector2(newPosition, transform.position.y);
-        }
-
-        return running;
+    private IEnumerator RunningTimer()
+    {
+        timerRunning = true;
+        yield return new WaitForSeconds(runDelay);
+        running = false;
+        timerRunning = false;
     }
 }
