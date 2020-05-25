@@ -31,6 +31,8 @@ public class AlienController : MonoBehaviour
     float currentPosition = 0;
     private float startPositionX;
     private float startPositionY;
+    private int alienCount = 0;
+    private List<GameObject> alienList = new List<GameObject>();
     
     void Start()
     {
@@ -56,7 +58,35 @@ public class AlienController : MonoBehaviour
 
     public float GetMoveSpeed()
     {
-        return horizontalMoveSpeed;
+        return horizontalMoveSpeed * moveDirection;
+    }
+
+    public void AddAlien(GameObject alien)
+    {
+        alienCount++;
+        alienList.Add(alien);
+    }
+
+    public void RemoveAlien(GameObject alien)
+    {
+        alienCount--;
+        alienList.Remove(alien);
+    }
+
+    public int GetAlienCount()
+    {
+        return alienCount;
+    }
+
+    public float GetAverageAlienPosition()
+    {
+        float totalX = 0f;
+        foreach (GameObject alien in alienList)
+        {
+            totalX += alien.transform.position.x;
+        }
+
+        return totalX / alienList.Count;
     }
 
     private void SpawnAliens()

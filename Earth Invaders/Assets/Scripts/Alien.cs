@@ -11,10 +11,14 @@ public class Alien : MonoBehaviour
     [SerializeField] Sprite[] sprites = new Sprite[2];
     [SerializeField] private GameObject laserPrefab;
     [SerializeField] private float laserSpeed = 2f;
+    [SerializeField] float explodeDelay = 1f;
+
+    [SerializeField] Sprite explodeSprite;
 
     private int currentSprite = -1;
     private Vector3 unroundedPos;
     private Color color;
+    private AlienController alienController;
     
     void Start()
     {
@@ -22,11 +26,8 @@ public class Alien : MonoBehaviour
         color = GetComponent<SpriteRenderer>().color;
         unroundedPos = transform.position;
         segmentsPerUnityUnit = GetComponentInParent<AlienController>().GetSegmentsPerUnityUnit();
-    }
-
-    private void Update()
-    {
-        //Move();
+        alienController = FindObjectOfType<AlienController>();
+        alienController.AddAlien(gameObject);
     }
 
     private void OnMouseDown()
@@ -78,13 +79,14 @@ public class Alien : MonoBehaviour
 
     private void OnCollisionEnter2D(Collision2D other)
     {
-        if (other.gameObject.CompareTag("Enemy Bullet"))
+        if (other.gameObject.CompareTag("Enemy Bullet") && !CompareTag("Explosion"))
         {
+            
             Destroy(other.gameObject);
-            Destroy(gameObject);
+            alienController.RemoveAlien(gameObject);
+            StartCoroutine(Explode());
         }
     }
-
     public void Shoot()
     {
         if (CompareTag("Alien"))
@@ -96,5 +98,13 @@ public class Alien : MonoBehaviour
         }
         
         
+    }
+
+    private IEnumerator Explode()
+    {
+        tag = "Explosion";
+        GetComponent<SpriteRenderer>().sprite = explodeSprite;
+        yield return new WaitForSeconds(explodeDelay);
+        Destroy(gameObject);
     }
 }

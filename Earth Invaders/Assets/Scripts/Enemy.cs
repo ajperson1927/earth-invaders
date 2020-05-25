@@ -9,40 +9,70 @@ public class Enemy : MonoBehaviour
     [SerializeField] private float laserSpeed = 2f;
     [SerializeField] private float shootDelay = 1f;
     [SerializeField] private bool isShooting = false;
-    [SerializeField] private float verticalLaserRange = 3f;
-    [SerializeField] private float horizontalLaserRange = 0.5f;
     [SerializeField] private float moveSpeed = 5f;
+    [SerializeField] private float safeDistanceDown = -1f;
+    [SerializeField] private float lagBehindOffset = 2f;
+    
+    [Header("Running Properties: ")]
+    [SerializeField] private float verticalRunLaserRange = 1f;
+    [SerializeField] private float horizontalRunLaserRange = 0.5f;
     [SerializeField] private float runDelay = 1f;
+    
+    [Header("Avoiding Properties: ")]
+    [SerializeField] private float verticalAvoidLaserRange = 2f;
+    [SerializeField] private float horizontalAvoidLaserRange = 2f;
+    [SerializeField] private float avoidDelay = 1f;
     
     bool running = false;
     private bool currentlyShooting = false;
     private LaserDetector laserDetector;
-    private Coroutine delayTimer;
-    private bool timerRunning = false;
-    private bool startTimer = false;
+    private AlienController alienController;
+    private Coroutine runningTimer;
+    private bool runningTimerRunning = false;
+    private bool startRunTimer = false;
     private bool avoiding = false;
+    private bool avoidingTimerRunning = false;
+    private bool startAvoidTimer = false;
+    private Coroutine avoidingTimer;
+    private int initialAlienCount = 0;
 
     void Start()
     {
         laserDetector = FindObjectOfType<LaserDetector>();
+        alienController = FindObjectOfType<AlienController>();
     }
 
     void Update()
     {
-        if (!currentlyShooting && isShooting)
+        if (initialAlienCount == 0)
+        {
+            initialAlienCount = alienController.GetAlienCount();
+            Debug.Log(initialAlienCount);
+        }
+        if (alienController.GetAlienCount() < initialAlienCount / 2)
+        {
+            lagBehindOffset = 0f;
+        }
+        if (!currentlyShooting && isShooting && alienController.GetAlienCount() > 0)
         {
             StartCoroutine(Shoot());
         }
 
-        RunFromLasers();
+
+        if (laserDetector.GetLasers().Count > 2)
+        {
+            RunFromLasers();
+        }
+
         if (!running)
         {
-            AvoidLasers();
-            if (!avoiding)
+            //AvoidLasers();
+            if (!avoiding && alienController.GetAlienCount() > 0)
             {
-                
+                TargetEnemy();
             }
         }
+
 
 
     }
@@ -64,7 +94,7 @@ public class Enemy : MonoBehaviour
         foreach (var laser in laserDetector.GetLasers())
         {
             float distanceBetween = laser.transform.position.y - transform.position.y;
-            if (distanceBetween < verticalLaserRange && distanceBetween > 0)
+            if (distanceBetween < verticalRunLaserRange && distanceBetween > safeDistanceDown)
             {
                 closeLasers.Add(laser);
             }
@@ -76,34 +106,34 @@ public class Enemy : MonoBehaviour
         
         for (int i = 0; i < closeLasers.Count; i++)
         {
-            if (Mathf.Abs(closeLasers[i].transform.position.x - transform.position.x) < closestDistance)
+            float distance = Mathf.Abs(closeLasers[i].transform.position.x - transform.position.x);
+            if (distance < closestDistance)
             {
-                if (Mathf.Abs(closeLasers[i].transform.position.x - transform.position.x) < horizontalLaserRange)
+                if (distance < horizontalRunLaserRange)
                 {
                     running = true;
                     doneRunning = false;
-                    startTimer = true;
+                    startRunTimer = true;
                     closestIndex = i;
-                    Debug.Log("Running");
                 }
             }
         }
         
 
-        if (Mathf.Abs(closeLasers[closestIndex].transform.position.x - transform.position.x) > horizontalLaserRange)
+        if (Mathf.Abs(closeLasers[closestIndex].transform.position.x - transform.position.x) > horizontalRunLaserRange)
         {
             doneRunning = true;
-            if (startTimer)
+            if (startRunTimer)
             {
-                startTimer = false;
-                if (timerRunning)
+                startRunTimer = false;
+                if (runningTimerRunning)
                 {
-                    StopCoroutine(delayTimer);
-                    delayTimer = StartCoroutine(RunningTimer());
+                    StopCoroutine(runningTimer);
+                    runningTimer = StartCoroutine(RunningTimer());
                 }
                 else
                 {
-                    delayTimer = StartCoroutine(RunningTimer());
+                    runningTimer = StartCoroutine(RunningTimer());
                 }
             }
         }
@@ -123,7 +153,7 @@ public class Enemy : MonoBehaviour
         foreach (var laser in laserDetector.GetLasers())
         {
             float distanceBetween = laser.transform.position.y - transform.position.y;
-            if (distanceBetween < verticalLaserRange && distanceBetween > 0) ;
+            if (distanceBetween < verticalAvoidLaserRange && distanceBetween > safeDistanceDown) ;
             {
                 closeLasers.Add(laser);
             }
@@ -147,14 +177,50 @@ public class Enemy : MonoBehaviour
             }
         }
 
-        if (closeLasers.Count > 2)
+        int closestIndex = 0;
+        float closestDistance = 1000f;
+        bool laserClose = false;
+        
+        for (int i = 0; i < closeLasers.Count; i++)
         {
-            avoiding = true;
-            float finalPosition = (orderedLasers[safeIndex].transform.position.x +
-                                   orderedLasers[safeIndex - 1].transform.position.x) / 2f;
+            float distance = Mathf.Abs(closeLasers[i].transform.position.x - transform.position.x);
+            if (distance < closestDistance)
+            {
+                closestIndex = i;
+                closestDistance = distance;
+                if (distance < horizontalAvoidLaserRange)
+                {
+                    laserClose = true;
+                }
+                else
+                {
+                    laserClose = false;
+                    startAvoidTimer = true;
+                }
+            }
+        }
+        if (!laserClose)
+        {
+            if (startAvoidTimer)
+            {
+                startAvoidTimer = false;
+                if (avoidingTimerRunning)
+                {
+                    StopCoroutine(avoidingTimer);
+                    avoidingTimer = StartCoroutine(AvoidingTimer());
+                }
+                else
+                {
+                    avoidingTimer = StartCoroutine(AvoidingTimer());
+                }
+            }
+        }
+        if (closeLasers.Count > 2 && laserClose)
+        {
+            
+            float finalPosition = (orderedLasers[safeIndex].transform.position.x + orderedLasers[safeIndex - 1].transform.position.x) / 2f;
             float newPosition = Mathf.MoveTowards(transform.position.x, finalPosition, moveSpeed * Time.deltaTime);
             transform.position = new Vector2(newPosition, transform.position.y);
-            Debug.Log("Avoiding");
         }
         else
         {
@@ -164,14 +230,27 @@ public class Enemy : MonoBehaviour
 
     private void TargetEnemy()
     {
-        
+        if (alienController.GetAlienCount() > 0)
+        {
+            float targetPosition = alienController.GetAverageAlienPosition() + (alienController.GetMoveSpeed() * lagBehindOffset);
+            float newPosition = Mathf.MoveTowards(transform.position.x, targetPosition, moveSpeed * Time.deltaTime);
+            transform.position = new Vector2(newPosition, transform.position.y);
+        }
     }
 
     private IEnumerator RunningTimer()
     {
-        timerRunning = true;
+        runningTimerRunning = true;
         yield return new WaitForSeconds(runDelay);
         running = false;
-        timerRunning = false;
+        runningTimerRunning = false;
+    }
+    
+    private IEnumerator AvoidingTimer()
+    {
+        avoidingTimerRunning = true;
+        yield return new WaitForSeconds(avoidDelay);
+        avoiding = false;
+        avoidingTimerRunning = false;
     }
 }
