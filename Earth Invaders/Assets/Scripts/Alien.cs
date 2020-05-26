@@ -19,11 +19,14 @@ public class Alien : MonoBehaviour
     private Vector3 unroundedPos;
     private Color color;
     private AlienController alienController;
+    private int playerLives = 3;
+    private SpriteRenderer spriteRenderer;
     
     void Start()
     {
         tag = "Alien";
-        color = GetComponent<SpriteRenderer>().color;
+        spriteRenderer = GetComponent<SpriteRenderer>();
+        color = spriteRenderer.color;
         unroundedPos = transform.position;
         segmentsPerUnityUnit = GetComponentInParent<AlienController>().GetSegmentsPerUnityUnit();
         alienController = FindObjectOfType<AlienController>();
@@ -39,6 +42,11 @@ public class Alien : MonoBehaviour
             playerController.SetSegmentsPerUnityUnit(segmentsPerUnityUnit);
             playerController.SetPadding(padding);
             FindObjectOfType<LevelController>().AddNewPlayer(gameObject);
+            ShieldController shieldController = GetComponent<ShieldController>();
+            if (shieldController)
+            {
+                shieldController.PlayerAttached();
+            }
         }
     }
 
@@ -65,7 +73,7 @@ public class Alien : MonoBehaviour
         currentSprite = currentSprite * -1;
         if (CompareTag("Alien"))
         {
-            GetComponent<SpriteRenderer>().sprite = sprites[(currentSprite + 1) / 2];
+            spriteRenderer.sprite = sprites[(currentSprite + 1) / 2];
         }
     }
 
@@ -75,6 +83,11 @@ public class Alien : MonoBehaviour
         tag = "Alien";
         GetComponent<SpriteRenderer>().color = color;
         Move(new Vector3(0,0,0));
+        ShieldController shieldController = GetComponent<ShieldController>();
+        if (shieldController)
+        {
+            shieldController.PlayerDetached();
+        }
     }
 
     private void OnCollisionEnter2D(Collision2D other)
@@ -83,8 +96,26 @@ public class Alien : MonoBehaviour
         {
             
             Destroy(other.gameObject);
-            alienController.RemoveAlien(gameObject);
-            StartCoroutine(Explode());
+            if (CompareTag("Player"))
+            {
+                playerLives--;
+                switch (playerLives)
+                {
+                    case 2:
+                        spriteRenderer.color = Color.yellow;
+                        break;
+                    case 1:
+                        spriteRenderer.color = Color.red;
+                        break;
+                    case 0:
+                        StartCoroutine(Explode());
+                        break;
+                }
+            }
+            else
+            {
+                StartCoroutine(Explode());
+            }
         }
     }
     public void Shoot()
@@ -102,8 +133,18 @@ public class Alien : MonoBehaviour
 
     private IEnumerator Explode()
     {
+        if (CompareTag("Player"))
+        {
+            Destroy(GetComponent<PlayerController>());
+            ShieldController shieldController = GetComponent<ShieldController>();
+            if (shieldController)
+            {
+                shieldController.PlayerDetached();
+            }
+        }
+        alienController.RemoveAlien(gameObject);
         tag = "Explosion";
-        GetComponent<SpriteRenderer>().sprite = explodeSprite;
+        spriteRenderer.sprite = explodeSprite;
         yield return new WaitForSeconds(explodeDelay);
         Destroy(gameObject);
     }

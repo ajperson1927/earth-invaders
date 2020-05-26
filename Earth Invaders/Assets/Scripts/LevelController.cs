@@ -5,15 +5,6 @@ using UnityEngine;
 public class LevelController : MonoBehaviour
 {
     private GameObject playerObject;
-    void Start()
-    {
-        
-    }
-    
-    void Update()
-    {
-        
-    }
 
     public void AddNewPlayer(GameObject newPlayer)
     {

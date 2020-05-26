@@ -11,7 +11,8 @@ public class Enemy : MonoBehaviour
     [SerializeField] private bool isShooting = false;
     [SerializeField] private float moveSpeed = 5f;
     [SerializeField] private float safeDistanceDown = -1f;
-    [SerializeField] private float lagBehindOffset = 2f;
+    [SerializeField] private float initialLagBehindOffset = 0f;
+    [SerializeField] private float finalLagBehindOffset = 4f;
     
     [Header("Running Properties: ")]
     [SerializeField] private float verticalRunLaserRange = 1f;
@@ -35,11 +36,13 @@ public class Enemy : MonoBehaviour
     private bool startAvoidTimer = false;
     private Coroutine avoidingTimer;
     private int initialAlienCount = 0;
+    private float lagBehindOffset;
 
     void Start()
     {
         laserDetector = FindObjectOfType<LaserDetector>();
         alienController = FindObjectOfType<AlienController>();
+        lagBehindOffset = initialLagBehindOffset;
     }
 
     void Update()
@@ -47,11 +50,10 @@ public class Enemy : MonoBehaviour
         if (initialAlienCount == 0)
         {
             initialAlienCount = alienController.GetAlienCount();
-            Debug.Log(initialAlienCount);
         }
         if (alienController.GetAlienCount() < initialAlienCount / 2)
         {
-            lagBehindOffset = 0f;
+            lagBehindOffset = finalLagBehindOffset;
         }
         if (!currentlyShooting && isShooting && alienController.GetAlienCount() > 0)
         {
@@ -72,9 +74,6 @@ public class Enemy : MonoBehaviour
                 TargetEnemy();
             }
         }
-
-
-
     }
 
     private IEnumerator Shoot()
@@ -143,8 +142,6 @@ public class Enemy : MonoBehaviour
             float newPosition = Mathf.MoveTowards(transform.position.x, avoidPosition, -moveSpeed * Time.deltaTime);
             transform.position = new Vector2(newPosition, transform.position.y);
         }
-
-        
     }
 
     private void AvoidLasers()

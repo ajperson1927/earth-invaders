@@ -123,6 +123,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   laserPrefab: {fileID: 7855902124573992998, guid: a6ad206caa8d84d4f8a4729f286271af,
     type: 3}
-  laserSpeed: 5
+  laserSpeed: 10
   shootDelay: 0.75
-  isShooting: 0
+  isShooting: 1
+  moveSpeed: 5
+  safeDistanceDown: -1
+  initialLagBehindOffset: 0
+  finalLagBehindOffset: 3
+  verticalRunLaserRange: 1
+  horizontalRunLaserRange: 0.5
+  runDelay: 1
+  verticalAvoidLaserRange: 2
+  horizontalAvoidLaserRange: 2
+  avoidDelay: 1
