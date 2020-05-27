@@ -99,10 +99,6 @@ public class Enemy : MonoBehaviour
         if (laserDetector.GetLasers().Count > 2)
         {
             RunFromLasers();
-            if (running)
-            {
-                Debug.Log("Running");
-            }
         }
 
         if (!running)

@@ -490,6 +490,7 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: 0, g: 1, b: 0.20850754, a: 1}
   m_RaycastTarget: 1
+  m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -567,6 +568,7 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
+  m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -860,7 +862,7 @@ PrefabInstance:
     - target: {fileID: 4859563220220332080, guid: 1e870a65a8999f27b9bad3a98f9e67d6,
         type: 3}
       propertyPath: maxRandomShootAmount
-      value: 2
+      value: 0.5
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 1e870a65a8999f27b9bad3a98f9e67d6, type: 3}
@@ -986,6 +988,12 @@ PrefabInstance:
       propertyPath: maxSpeed
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 4938928901397798266, guid: 0df2cbd28fe464a20892fc5f1feece1c,
+        type: 3}
+      propertyPath: alienRows.Array.data[4]
+      value: 
+      objectReference: {fileID: 3872865165759535637, guid: 55c4dcba0cc576ecf8a2ea6761a54394,
+        type: 3}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 0df2cbd28fe464a20892fc5f1feece1c, type: 3}
 --- !u!1001 &6788497619056824331

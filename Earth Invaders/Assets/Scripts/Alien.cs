@@ -19,7 +19,7 @@ public class Alien : MonoBehaviour
     private Vector3 unroundedPos;
     private Color color;
     private AlienController alienController;
-    private int playerLives = 3;
+    [SerializeField] private int playerLives = 3;
     private SpriteRenderer spriteRenderer;
     
     void Start()
@@ -98,18 +98,26 @@ public class Alien : MonoBehaviour
             Destroy(other.gameObject);
             if (CompareTag("Player"))
             {
-                playerLives--;
-                switch (playerLives)
+                if (playerLives == 3)
                 {
-                    case 2:
-                        spriteRenderer.color = Color.yellow;
-                        break;
-                    case 1:
-                        spriteRenderer.color = Color.red;
-                        break;
-                    case 0:
-                        StartCoroutine(Explode());
-                        break;
+
+                    playerLives--;
+                    switch (playerLives)
+                    {
+                        case 2:
+                            spriteRenderer.color = Color.yellow;
+                            break;
+                        case 1:
+                            spriteRenderer.color = Color.red;
+                            break;
+                        case 0:
+                            StartCoroutine(Explode());
+                            break;
+                    }
+                }
+                else
+                {
+                    StartCoroutine(Explode());
                 }
             }
             else

@@ -144,7 +144,6 @@ public class AlienController : MonoBehaviour
         while (!movingDown)
         {
             fasterMoveSpeed = Mathf.Clamp((((float)(alienColumns * alienRows.Count) / (float)alienCount) - 1f) * fasterSpeedMultiplier + horizontalMoveSpeed, 0, maxSpeed);
-            Debug.Log("New move speed is " + fasterMoveSpeed);
             for (int i = 0; i <= alienRows.Count - 1; i++)
             {
                 for (int j = alienColumns - 1; j >= 0; j--)
