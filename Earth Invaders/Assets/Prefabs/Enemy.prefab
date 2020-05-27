@@ -131,8 +131,11 @@ MonoBehaviour:
   initialLagBehindOffset: 0
   finalLagBehindOffset: 3
   lives: 3
+  firstShip: {fileID: 0}
+  secondShip: {fileID: 0}
+  healthText: {fileID: 0}
   verticalRunLaserRange: 1
-  horizontalRunLaserRange: 0.5
+  horizontalRunLaserRange: 1
   runDelay: 1
   verticalAvoidLaserRange: 2
   horizontalAvoidLaserRange: 2

@@ -9,6 +9,8 @@ public class AlienController : MonoBehaviour
     [SerializeField] private float segmentsPerUnityUnit = 4f;
     [SerializeField] private float shootChance = 4f;
     [SerializeField] private bool moveAtOnce = false;
+    [SerializeField] private float fasterSpeedMultiplier = 1f;
+    [SerializeField] private float maxSpeed = 5f;
     [Header("Horizontal Properties:")]
     [SerializeField] private float horizontalPadding = 0.2f;
     [SerializeField] private float horizontalMoveSpeed = 5f;
@@ -34,6 +36,7 @@ public class AlienController : MonoBehaviour
     private float startPositionY;
     private int alienCount = 0;
     private List<GameObject> alienList = new List<GameObject>();
+    private float fasterMoveSpeed = 0f;
     
     void Start()
     {
@@ -59,7 +62,7 @@ public class AlienController : MonoBehaviour
 
     public float GetMoveSpeed()
     {
-        return horizontalMoveSpeed * moveDirection;
+        return fasterMoveSpeed * moveDirection;
     }
 
     public void AddAlien(GameObject alien)
@@ -88,6 +91,11 @@ public class AlienController : MonoBehaviour
         }
 
         return totalX / alienList.Count;
+    }
+
+    public List<GameObject> GetAlienList()
+    {
+        return alienList;
     }
 
     private void SpawnAliens()
@@ -135,6 +143,8 @@ public class AlienController : MonoBehaviour
     {
         while (!movingDown)
         {
+            fasterMoveSpeed = Mathf.Clamp((((float)(alienColumns * alienRows.Count) / (float)alienCount) - 1f) * fasterSpeedMultiplier + horizontalMoveSpeed, 0, maxSpeed);
+            Debug.Log("New move speed is " + fasterMoveSpeed);
             for (int i = 0; i <= alienRows.Count - 1; i++)
             {
                 for (int j = alienColumns - 1; j >= 0; j--)
@@ -144,7 +154,7 @@ public class AlienController : MonoBehaviour
                     {
                         Alien currentAlien = currentAlienObject.GetComponent<Alien>();
                         currentAlien.SwitchSprite();
-                        currentAlien.Move(new Vector3(horizontalMoveSpeed * moveDirection, 0, 0));
+                        currentAlien.Move(new Vector3((fasterMoveSpeed) * moveDirection, 0, 0));
 
                         Shoot(i, j, currentAlien);
                     }
@@ -162,15 +172,14 @@ public class AlienController : MonoBehaviour
                 }
             }
 
-
-
+            
             CheckIfEndReached();
         }
     }
 
     private void CheckIfEndReached()
     {
-        currentPosition += horizontalMoveSpeed * moveDirection;
+        currentPosition += fasterMoveSpeed * moveDirection;
         if (moveDirection > 0 &&
             currentPosition > 0 + (alienColumns * (1 + horizontalPadding)) / 2 - distanceToWall)
         {

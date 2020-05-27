@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class Alien : MonoBehaviour
 {
-    [SerializeField] private float movementSpeed = 2f;
+    [SerializeField] private float playerMovementSpeed = 2f;
     [SerializeField] private float segmentsPerUnityUnit = 4f;
     [SerializeField] private float padding = 0.5f;
     [SerializeField] Sprite[] sprites = new Sprite[2];
@@ -38,7 +38,7 @@ public class Alien : MonoBehaviour
         if (!GetComponent<PlayerController>())
         {
             PlayerController playerController = gameObject.AddComponent<PlayerController>();
-            playerController.SetMovementSpeed(movementSpeed);
+            playerController.SetMovementSpeed(playerMovementSpeed);
             playerController.SetSegmentsPerUnityUnit(segmentsPerUnityUnit);
             playerController.SetPadding(padding);
             FindObjectOfType<LevelController>().AddNewPlayer(gameObject);

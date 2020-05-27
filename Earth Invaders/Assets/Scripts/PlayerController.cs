@@ -20,6 +20,7 @@ public class PlayerController : MonoBehaviour
     private Vector3 tempTransform;
     private Sprite[] sprites;
     private int currentSprite = -1;
+    private int movementCounter = 0;
 
     public void SetMovementSpeed(float speed)
     {
@@ -82,9 +83,14 @@ public class PlayerController : MonoBehaviour
     {
         if (transform.position != tempTransform)
         {
-            currentSprite  = currentSprite * -1;
-            spriteRenderer.sprite = sprites[(currentSprite + 1) / 2];
+            movementCounter++;
             tempTransform = transform.position;
+            if (movementCounter >= movementSpeed * 2)
+            {
+                currentSprite  = currentSprite * -1;
+                spriteRenderer.sprite = sprites[(currentSprite + 1) / 2];
+                movementCounter = 0;
+            }
         }
     }
 

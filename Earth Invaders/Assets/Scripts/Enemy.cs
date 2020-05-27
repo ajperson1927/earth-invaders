@@ -3,6 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.UI;
+using Random = UnityEngine.Random;
 
 public class Enemy : MonoBehaviour
 {
@@ -15,6 +17,12 @@ public class Enemy : MonoBehaviour
     [SerializeField] private float initialLagBehindOffset = 0f;
     [SerializeField] private float finalLagBehindOffset = 4f;
     [SerializeField] private int lives = 3;
+    [SerializeField] private GameObject firstShip;
+    [SerializeField] private GameObject secondShip;
+    [SerializeField] private GameObject healthText;
+    [SerializeField] private float padding = 0.5f;
+    [SerializeField] private float newAlienDelay = 5f;
+    
     
     [Header("Running Properties: ")]
     [SerializeField] private float verticalRunLaserRange = 1f;
@@ -25,6 +33,11 @@ public class Enemy : MonoBehaviour
     [SerializeField] private float verticalAvoidLaserRange = 2f;
     [SerializeField] private float horizontalAvoidLaserRange = 2f;
     [SerializeField] private float avoidDelay = 1f;
+    
+    private float xMin;
+    private float xMax;
+    private float yMin;
+    private float yMax;
     
     bool running = false;
     private bool currentlyShooting = false;
@@ -39,9 +52,13 @@ public class Enemy : MonoBehaviour
     private Coroutine avoidingTimer;
     private int initialAlienCount = 0;
     private float lagBehindOffset;
+    private bool findingNewAlien = false;
+    private GameObject currentAlien;
 
     void Start()
     {
+        SetupMoveBoundaries();
+        Debug.Log(xMin + "       " + xMax);
         laserDetector = FindObjectOfType<LaserDetector>();
         alienController = FindObjectOfType<AlienController>();
         lagBehindOffset = initialLagBehindOffset;
@@ -62,26 +79,45 @@ public class Enemy : MonoBehaviour
             StartCoroutine(Shoot());
         }
 
+        if (!findingNewAlien)
+        {
+            
+            StartCoroutine(FindNewAlien());
+        }
 
         if (laserDetector.GetLasers().Count > 2)
         {
             RunFromLasers();
+            if (running)
+            {
+                Debug.Log("Running");
+            }
         }
 
         if (!running)
         {
-            //AvoidLasers();
+            AvoidLasers();
             if (!avoiding && alienController.GetAlienCount() > 0)
             {
-                TargetEnemy();
+                //TargetEnemy();
+                TargetRandomEnemy();
             }
         }
+    }
+    private void SetupMoveBoundaries()
+    {
+        Camera camera = Camera.main;
+        xMin = camera.ViewportToWorldPoint(new Vector3(0, 0, 0)).x + padding;
+        xMax = camera.ViewportToWorldPoint(new Vector3(1, 0, 0)).x - padding;
+        yMin = camera.ViewportToWorldPoint(new Vector3(0, 0, 0)).y + padding;
+        yMax = camera.ViewportToWorldPoint(new Vector3(0, 1, 0)).y - padding;
     }
 
     private IEnumerator Shoot()
     {
         currentlyShooting = true;
-        GameObject laser = Instantiate(laserPrefab,transform.position,Quaternion.identity);
+        Vector3 laserPosition = new Vector3(transform.position.x,transform.position.y + 0.2f, transform.position.z);
+        GameObject laser = Instantiate(laserPrefab,laserPosition,Quaternion.identity);
         laser.GetComponent<Rigidbody2D>().velocity = Vector2.up * laserSpeed;
         laser.tag = "Enemy Bullet";
         yield return new WaitForSeconds(shootDelay);
@@ -141,7 +177,7 @@ public class Enemy : MonoBehaviour
         if (closeLasers.Count > 2 && !doneRunning)
         {
             float avoidPosition = closeLasers[closestIndex].transform.position.x;
-            float newPosition = Mathf.MoveTowards(transform.position.x, avoidPosition, -moveSpeed * Time.deltaTime);
+            float newPosition = Mathf.Clamp(Mathf.MoveTowards(transform.position.x, avoidPosition, -moveSpeed * Time.deltaTime),xMin,xMax);
             transform.position = new Vector2(newPosition, transform.position.y);
         }
     }
@@ -232,7 +268,17 @@ public class Enemy : MonoBehaviour
         if (alienController.GetAlienCount() > 0)
         {
             float targetPosition = alienController.GetAverageAlienPosition() + (alienController.GetMoveSpeed() * lagBehindOffset);
-            float newPosition = Mathf.MoveTowards(transform.position.x, targetPosition, moveSpeed * Time.deltaTime);
+            float newPosition = Mathf.Clamp(Mathf.MoveTowards(transform.position.x, targetPosition, moveSpeed * Time.deltaTime),xMin,xMax);
+            transform.position = new Vector2(newPosition, transform.position.y);
+        }
+    }
+
+    private void TargetRandomEnemy()
+    {
+        if (alienController.GetAlienCount() > 0 && currentAlien)
+        {
+            float targetPosition = currentAlien.transform.position.x;
+            float newPosition = Mathf.Clamp(Mathf.MoveTowards(transform.position.x, targetPosition, moveSpeed * Time.deltaTime), xMin, xMax);
             transform.position = new Vector2(newPosition, transform.position.y);
         }
     }
@@ -253,6 +299,19 @@ public class Enemy : MonoBehaviour
         avoidingTimerRunning = false;
     }
 
+    private IEnumerator FindNewAlien()
+    {
+        findingNewAlien = true;
+        if (alienController.GetAlienCount() > 0)
+        {
+            int randomAlienNumber = Random.Range(0, alienController.GetAlienCount() - 1);
+            currentAlien = alienController.GetAlienList()[randomAlienNumber];
+            Debug.Log("New alien is alien #" + randomAlienNumber);
+        }
+        yield return new WaitForSeconds(newAlienDelay);
+        findingNewAlien = false;
+    }
+
     private void OnCollisionEnter2D(Collision2D other)
     {
         if (other.gameObject.CompareTag("Alien Laser"))
@@ -262,10 +321,15 @@ public class Enemy : MonoBehaviour
             switch (lives)
             {
                 case 2:
-                    GetComponent<SpriteRenderer>().color = Color.yellow;
+                    secondShip.SetActive(false);
+                    healthText.GetComponent<Text>().text = "2";
                     break;
                 case 1:
-                    GetComponent<SpriteRenderer>().color = Color.red;
+                    firstShip.SetActive(false);
+                    healthText.GetComponent<Text>().text = "1";
+                    break;
+                case 0:
+                    healthText.GetComponent<Text>().text = "0";
                     break;
             }
         }

@@ -55,9 +55,11 @@ public class LaserDetector : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        lasers.Remove(other.gameObject);
-        StartCoroutine(DestroyLaser(other.gameObject));
-        
+        if (other.gameObject.CompareTag("Alien Laser"))
+        {
+            lasers.Remove(other.gameObject);
+            StartCoroutine(DestroyLaser(other.gameObject));
+        }
     }
 
     private IEnumerator DestroyLaser(GameObject laser)

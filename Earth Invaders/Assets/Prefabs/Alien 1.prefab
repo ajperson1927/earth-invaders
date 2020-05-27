@@ -74,7 +74,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: -2311659948842064771, guid: f642ec564522879759f57ea6b48d126d,
+  m_Sprite: {fileID: -1117295239925042166, guid: 8a769322e8c24ce2d8a6ca247c621c1d,
     type: 3}
   m_Color: {r: 1, g: 0.4471313, b: 0, a: 1}
   m_FlipX: 0
@@ -103,7 +103,7 @@ BoxCollider2D:
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 0.73333335, y: 0.53333336}
+    oldSize: {x: 0.8, y: 0.53333336}
     newSize: {x: 1.1, y: 0.8}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
@@ -124,15 +124,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 946a22ad59a4a7fd9976ed2c35abbb83, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  movementSpeed: 2
+  playerMovementSpeed: 2.5
   segmentsPerUnityUnit: 4
   padding: 0.5
   sprites:
-  - {fileID: -2311659948842064771, guid: f642ec564522879759f57ea6b48d126d, type: 3}
-  - {fileID: 7364682651488144517, guid: f642ec564522879759f57ea6b48d126d, type: 3}
+  - {fileID: -1117295239925042166, guid: 8a769322e8c24ce2d8a6ca247c621c1d, type: 3}
+  - {fileID: 8419722761488255318, guid: 8a769322e8c24ce2d8a6ca247c621c1d, type: 3}
   laserPrefab: {fileID: 7855902124573992998, guid: a6ad206caa8d84d4f8a4729f286271af,
     type: 3}
-  laserSpeed: 7
+  laserSpeed: 5
   explodeDelay: 1
   explodeSprite: {fileID: 21300000, guid: 952493d58a228d034a8a7b71c54e5edb, type: 3}
 --- !u!50 &2411753152663506897
