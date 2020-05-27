@@ -8,57 +8,68 @@ using Random = UnityEngine.Random;
 
 public class Enemy : MonoBehaviour
 {
-    [SerializeField] private GameObject laserPrefab;
+    [SerializeField] private int lives = 3;
+    [SerializeField] private float newAlienDelay = 5f;
+    [SerializeField] private float maxRandomRunAmount = 0.5f;
+    [SerializeField] private float maxRandomTargetAmount = 0.75f;
+    [SerializeField] private float maxRandomShootAmount = 1f;
+    
+    [Header("Enemy Move/Shoot Properties: ")]
+    [SerializeField] private float moveSpeed = 5f;
+    [SerializeField] private float padding = 0.5f;
+    [SerializeField] private float initialLagBehindOffset = 0f;
+    [SerializeField] private float finalLagBehindOffset = 4f;
     [SerializeField] private float laserSpeed = 2f;
     [SerializeField] private float shootDelay = 1f;
     [SerializeField] private bool isShooting = false;
-    [SerializeField] private float moveSpeed = 5f;
-    [SerializeField] private float safeDistanceDown = -1f;
-    [SerializeField] private float initialLagBehindOffset = 0f;
-    [SerializeField] private float finalLagBehindOffset = 4f;
-    [SerializeField] private int lives = 3;
+    
+    [Header("Enemy Game Objects: ")]
     [SerializeField] private GameObject firstShip;
     [SerializeField] private GameObject secondShip;
     [SerializeField] private GameObject healthText;
-    [SerializeField] private float padding = 0.5f;
-    [SerializeField] private float newAlienDelay = 5f;
+    [SerializeField] private GameObject laserPrefab;
     
+    private LaserDetector laserDetector;
+    private AlienController alienController;
+    private GameObject currentAlien;
+    private Coroutine avoidingTimer;
     
     [Header("Running Properties: ")]
     [SerializeField] private float verticalRunLaserRange = 1f;
     [SerializeField] private float horizontalRunLaserRange = 0.5f;
     [SerializeField] private float runDelay = 1f;
+    [SerializeField] private float safeDistanceDown = -1f;
     
+    bool running = false;
+    private Coroutine runningTimer;
+    private bool runningTimerRunning = false;
+    private bool startRunTimer = false;
+    private float randomRunAmount = 0f;
+
     [Header("Avoiding Properties: ")]
     [SerializeField] private float verticalAvoidLaserRange = 2f;
     [SerializeField] private float horizontalAvoidLaserRange = 2f;
     [SerializeField] private float avoidDelay = 1f;
+    
+    private bool avoiding = false;
+    private bool avoidingTimerRunning = false;
+    private bool startAvoidTimer = false;
     
     private float xMin;
     private float xMax;
     private float yMin;
     private float yMax;
     
-    bool running = false;
     private bool currentlyShooting = false;
-    private LaserDetector laserDetector;
-    private AlienController alienController;
-    private Coroutine runningTimer;
-    private bool runningTimerRunning = false;
-    private bool startRunTimer = false;
-    private bool avoiding = false;
-    private bool avoidingTimerRunning = false;
-    private bool startAvoidTimer = false;
-    private Coroutine avoidingTimer;
     private int initialAlienCount = 0;
     private float lagBehindOffset;
-    private bool findingNewAlien = false;
-    private GameObject currentAlien;
+    private bool findingNewRandoms = false;
+    private float randomShootAmount = 0f;
+    private float randomTargetAmount = 0f;
 
     void Start()
     {
         SetupMoveBoundaries();
-        Debug.Log(xMin + "       " + xMax);
         laserDetector = FindObjectOfType<LaserDetector>();
         alienController = FindObjectOfType<AlienController>();
         lagBehindOffset = initialLagBehindOffset;
@@ -79,10 +90,10 @@ public class Enemy : MonoBehaviour
             StartCoroutine(Shoot());
         }
 
-        if (!findingNewAlien)
+        if (!findingNewRandoms)
         {
             
-            StartCoroutine(FindNewAlien());
+            StartCoroutine(FindNewRandoms());
         }
 
         if (laserDetector.GetLasers().Count > 2)
@@ -96,7 +107,7 @@ public class Enemy : MonoBehaviour
 
         if (!running)
         {
-            AvoidLasers();
+            //AvoidLasers();
             if (!avoiding && alienController.GetAlienCount() > 0)
             {
                 //TargetEnemy();
@@ -120,7 +131,7 @@ public class Enemy : MonoBehaviour
         GameObject laser = Instantiate(laserPrefab,laserPosition,Quaternion.identity);
         laser.GetComponent<Rigidbody2D>().velocity = Vector2.up * laserSpeed;
         laser.tag = "Enemy Bullet";
-        yield return new WaitForSeconds(shootDelay);
+        yield return new WaitForSeconds(shootDelay + randomShootAmount);
         currentlyShooting = false;
     }
 
@@ -146,7 +157,7 @@ public class Enemy : MonoBehaviour
             float distance = Mathf.Abs(closeLasers[i].transform.position.x - transform.position.x);
             if (distance < closestDistance)
             {
-                if (distance < horizontalRunLaserRange)
+                if (distance < horizontalRunLaserRange + randomRunAmount)
                 {
                     running = true;
                     doneRunning = false;
@@ -157,7 +168,7 @@ public class Enemy : MonoBehaviour
         }
         
 
-        if (Mathf.Abs(closeLasers[closestIndex].transform.position.x - transform.position.x) > horizontalRunLaserRange)
+        if (Mathf.Abs(closeLasers[closestIndex].transform.position.x - transform.position.x) > horizontalRunLaserRange + randomRunAmount)
         {
             doneRunning = true;
             if (startRunTimer)
@@ -277,7 +288,7 @@ public class Enemy : MonoBehaviour
     {
         if (alienController.GetAlienCount() > 0 && currentAlien)
         {
-            float targetPosition = currentAlien.transform.position.x;
+            float targetPosition = currentAlien.transform.position.x + randomTargetAmount;
             float newPosition = Mathf.Clamp(Mathf.MoveTowards(transform.position.x, targetPosition, moveSpeed * Time.deltaTime), xMin, xMax);
             transform.position = new Vector2(newPosition, transform.position.y);
         }
@@ -299,17 +310,20 @@ public class Enemy : MonoBehaviour
         avoidingTimerRunning = false;
     }
 
-    private IEnumerator FindNewAlien()
+    private IEnumerator FindNewRandoms()
     {
-        findingNewAlien = true;
+        findingNewRandoms = true;
         if (alienController.GetAlienCount() > 0)
         {
             int randomAlienNumber = Random.Range(0, alienController.GetAlienCount() - 1);
             currentAlien = alienController.GetAlienList()[randomAlienNumber];
-            Debug.Log("New alien is alien #" + randomAlienNumber);
         }
+
+        randomRunAmount = Random.Range(0, maxRandomRunAmount);
+        randomShootAmount = Random.Range(0, maxRandomShootAmount);
+        randomTargetAmount = Random.Range(-randomTargetAmount, randomTargetAmount);
         yield return new WaitForSeconds(newAlienDelay);
-        findingNewAlien = false;
+        findingNewRandoms = false;
     }
 
     private void OnCollisionEnter2D(Collision2D other)

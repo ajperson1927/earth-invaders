@@ -857,6 +857,11 @@ PrefabInstance:
       propertyPath: verticalRunLaserRange
       value: 2
       objectReference: {fileID: 0}
+    - target: {fileID: 4859563220220332080, guid: 1e870a65a8999f27b9bad3a98f9e67d6,
+        type: 3}
+      propertyPath: maxRandomShootAmount
+      value: 2
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 1e870a65a8999f27b9bad3a98f9e67d6, type: 3}
 --- !u!1001 &4938928902431532994
