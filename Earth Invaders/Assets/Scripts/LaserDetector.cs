@@ -8,6 +8,10 @@ public class LaserDetector : MonoBehaviour
 {
     [SerializeField] private float sideLaserDistance = 7f;
     [SerializeField] private float sideLaserDistanceUp = 1f;
+
+    [SerializeField] Sprite explosionSprite;
+    [SerializeField] private float explosionTime = 1f;
+    [SerializeField] private float explosionDistanceUp = 1f;
     private List<GameObject> lasers = new List<GameObject>();
 
     private void Start()
@@ -36,7 +40,15 @@ public class LaserDetector : MonoBehaviour
         laser.transform.parent = transform;
     }
 
-    public List<GameObject> GetLasers()
+    public void RemoveLaser(GameObject laser)
+    {
+        if (lasers.Contains(laser))
+        {
+            lasers.Remove(laser);
+        }
+    }
+
+        public List<GameObject> GetLasers()
     {
         return lasers;
     }
@@ -44,6 +56,20 @@ public class LaserDetector : MonoBehaviour
     private void OnTriggerEnter2D(Collider2D other)
     {
         lasers.Remove(other.gameObject);
-        Destroy(other.gameObject);
+        StartCoroutine(DestroyLaser(other.gameObject));
+        
     }
+
+    private IEnumerator DestroyLaser(GameObject laser)
+    {
+        laser.GetComponent<Rigidbody2D>().velocity = Vector2.zero;
+        Destroy(laser.GetComponent<BoxCollider2D>());
+        laser.GetComponent<SpriteRenderer>().sprite = explosionSprite;
+        laser.GetComponent<SpriteRenderer>().color = new Color(0,255,0,255);
+        laser.transform.localScale = new Vector3(1,1.25f,0);
+        laser.transform.position = new Vector3(laser.transform.position.x, transform.position.y + explosionDistanceUp, 0);
+        yield return new WaitForSeconds(explosionTime);
+        Destroy(laser);
+    }
+    
 }

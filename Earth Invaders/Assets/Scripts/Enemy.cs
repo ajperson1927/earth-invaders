@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -13,6 +14,7 @@ public class Enemy : MonoBehaviour
     [SerializeField] private float safeDistanceDown = -1f;
     [SerializeField] private float initialLagBehindOffset = 0f;
     [SerializeField] private float finalLagBehindOffset = 4f;
+    [SerializeField] private int lives = 3;
     
     [Header("Running Properties: ")]
     [SerializeField] private float verticalRunLaserRange = 1f;
@@ -249,5 +251,23 @@ public class Enemy : MonoBehaviour
         yield return new WaitForSeconds(avoidDelay);
         avoiding = false;
         avoidingTimerRunning = false;
+    }
+
+    private void OnCollisionEnter2D(Collision2D other)
+    {
+        if (other.gameObject.CompareTag("Alien Laser"))
+        {
+            laserDetector.RemoveLaser(other.gameObject);
+            lives--;
+            switch (lives)
+            {
+                case 2:
+                    GetComponent<SpriteRenderer>().color = Color.yellow;
+                    break;
+                case 1:
+                    GetComponent<SpriteRenderer>().color = Color.red;
+                    break;
+            }
+        }
     }
 }

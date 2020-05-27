@@ -8,6 +8,7 @@ public class AlienController : MonoBehaviour
 {
     [SerializeField] private float segmentsPerUnityUnit = 4f;
     [SerializeField] private float shootChance = 4f;
+    [SerializeField] private bool moveAtOnce = false;
     [Header("Horizontal Properties:")]
     [SerializeField] private float horizontalPadding = 0.2f;
     [SerializeField] private float horizontalMoveSpeed = 5f;
@@ -47,7 +48,7 @@ public class AlienController : MonoBehaviour
         if (!movingCoroutineRunning)
         {
             movingCoroutineRunning = true;
-            movingCoroutine =StartCoroutine(MoveAliens());
+            movingCoroutine = StartCoroutine(MoveAliens());
         }
     }
 
@@ -149,9 +150,20 @@ public class AlienController : MonoBehaviour
                     }
 
 
+                    if (!moveAtOnce)
+                    {
+                        yield return new WaitForSeconds(timeBetweenHorizontalAliens);
+                    }
+                }
+
+                if (moveAtOnce)
+                {
                     yield return new WaitForSeconds(timeBetweenHorizontalAliens);
                 }
             }
+
+
+
             CheckIfEndReached();
         }
     }

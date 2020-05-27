@@ -54,12 +54,12 @@ public class Alien : MonoBehaviour
     {
         unroundedPos += moveBy;
 
-        var newX = Mathf.RoundToInt(unroundedPos.x * segmentsPerUnityUnit) / segmentsPerUnityUnit;
-        var newY = Mathf.RoundToInt(unroundedPos.y * segmentsPerUnityUnit) / segmentsPerUnityUnit;
+        //var newX = Mathf.RoundToInt(unroundedPos.x * segmentsPerUnityUnit) / segmentsPerUnityUnit;
+        //var newY = Mathf.RoundToInt(unroundedPos.y * segmentsPerUnityUnit) / segmentsPerUnityUnit;
 
         if (CompareTag("Alien"))
         {
-            transform.position = new Vector2(newX, newY);
+            transform.position = unroundedPos; //new Vector2(newX, newY);
         }
     }
 

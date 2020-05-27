@@ -18,6 +18,7 @@ public class Shield : MonoBehaviour
     {
         if (other.gameObject.CompareTag("Enemy Bullet"))
         {
+            Destroy(other.gameObject);
             shieldLives--;
             switch (shieldLives)
             {
@@ -28,7 +29,7 @@ public class Shield : MonoBehaviour
                     spriteRenderer.color = Color.red;
                     break;
                 case 0:
-                    GetComponent<ShieldController>().DestroyShield();
+                    GetComponentInParent<ShieldController>().DestroyShield();
                     break;
             }
         }

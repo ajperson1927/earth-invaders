@@ -170,4 +170,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   shieldPrefab: {fileID: 4712862320378934188, guid: 65948205eb5c9a6d4a2f39f555335713,
     type: 3}
-  distanceDown: 1
+  distanceDown: 0.5

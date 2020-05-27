@@ -45,7 +45,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   sideLaserDistance: 7
-  sideLaserDistanceUp: 2.5
+  sideLaserDistanceUp: 1
+  explosionSprite: {fileID: 21300000, guid: 117ab1e7e4a60b53aaaaf1269e8ef262, type: 3}
+  explosionTime: 1
+  explosionDistanceUp: 0.78
 --- !u!61 &7059688230525916965
 BoxCollider2D:
   m_ObjectHideFlags: 0

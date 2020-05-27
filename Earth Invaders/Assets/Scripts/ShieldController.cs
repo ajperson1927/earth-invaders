@@ -22,6 +22,7 @@ public class ShieldController : MonoBehaviour
     public void PlayerAttached()
     {
         shield.SetActive(true);
+        shield.transform.position = new Vector3(GetComponent<PlayerController>().transform.position.x,transform.position.y - distanceDown,0);
     }
 
     public void PlayerDetached()
