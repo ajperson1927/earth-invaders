@@ -202,3 +202,4 @@ MonoBehaviour:
     m_NumAlphaKeys: 2
   shootDelay: 3
   laserSpeed: 3
+  laserDownAmount: 0.5

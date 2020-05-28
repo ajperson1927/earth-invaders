@@ -8,6 +8,7 @@ public class BigLaser : MonoBehaviour
     [SerializeField] Gradient rechargeGradient;
     [SerializeField] private float shootDelay = 1f;
     [SerializeField] private float laserSpeed = 3f;
+    [SerializeField] private float laserDownAmount = 1f;
     
     private float currentTime = 0f;
     private bool canShoot = true;
@@ -38,7 +39,8 @@ public class BigLaser : MonoBehaviour
 
             if (canShoot && Input.GetKeyDown(KeyCode.Space))
             {
-                GameObject laser = Instantiate(laserPrefab, transform.position, Quaternion.identity);
+                Vector3 laserPosition = new Vector3(transform.position.x, transform.position.y - laserDownAmount, 0);
+                GameObject laser = Instantiate(laserPrefab, laserPosition, Quaternion.identity);
                 laser.GetComponent<Rigidbody2D>().velocity = Vector2.down * laserSpeed;
                 laser.tag = "Player Laser";
                 FindObjectOfType<LaserDetector>().AddLaser(laser);
