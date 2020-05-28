@@ -2,7 +2,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.SymbolStore;
-using UnityEditor.SceneManagement;
 using UnityEngine;
 
 public class Shooter : MonoBehaviour

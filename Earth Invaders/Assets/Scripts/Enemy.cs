@@ -33,6 +33,7 @@ public class Enemy : MonoBehaviour
     private AlienController alienController;
     private GameObject currentAlien;
     private Coroutine avoidingTimer;
+    private LevelController levelController;
     
     [Header("Running Properties: ")]
     [SerializeField] private float verticalRunLaserRange = 1f;
@@ -66,12 +67,14 @@ public class Enemy : MonoBehaviour
     private bool findingNewRandoms = false;
     private float randomShootAmount = 0f;
     private float randomTargetAmount = 0f;
+    
 
     void Start()
     {
         SetupMoveBoundaries();
         laserDetector = FindObjectOfType<LaserDetector>();
         alienController = FindObjectOfType<AlienController>();
+        levelController = FindObjectOfType<LevelController>();
         lagBehindOffset = initialLagBehindOffset;
     }
 
@@ -340,6 +343,7 @@ public class Enemy : MonoBehaviour
                     break;
                 case 0:
                     healthText.GetComponent<Text>().text = "0";
+                    levelController.GameWon();
                     break;
             }
         }

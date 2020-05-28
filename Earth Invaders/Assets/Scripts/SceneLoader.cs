@@ -7,7 +7,7 @@ public class SceneLoader : MonoBehaviour
 {
     public void LoadStartScene()
     {
-        SceneManager.LoadScene("Title Screen");
+        SceneManager.LoadScene(0);
     }
 
     public void LoadNextScene()

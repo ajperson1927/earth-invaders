@@ -37,12 +37,14 @@ public class AlienController : MonoBehaviour
     private int alienCount = 0;
     private List<GameObject> alienList = new List<GameObject>();
     private float fasterMoveSpeed = 0f;
+    private LevelController levelController;
     
     void Start()
     {
         //newAlienRows = alienRows.Count * (1f + horizontalPadding);
         //newAlienColumns = alienColumns * (1f + verticalPadding);
         aliens = new GameObject[alienRows.Count, alienColumns];
+        levelController = FindObjectOfType<LevelController>();
         SpawnAliens();
     }
 
@@ -75,6 +77,10 @@ public class AlienController : MonoBehaviour
     {
         alienCount--;
         alienList.Remove(alien);
+        if (alienCount <= 0)
+        {
+            levelController.GameLost();
+        }
     }
 
     public int GetAlienCount()

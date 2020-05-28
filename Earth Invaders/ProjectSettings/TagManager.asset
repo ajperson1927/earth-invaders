@@ -9,6 +9,7 @@ TagManager:
   - Alien Laser
   - Player Laser
   - Explosion
+  - Level Winner
   layers:
   - Default
   - TransparentFX

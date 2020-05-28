@@ -92,13 +92,18 @@ public class Alien : MonoBehaviour
 
     private void OnCollisionEnter2D(Collision2D other)
     {
+        if (other.gameObject.CompareTag("Level Winner") && CompareTag("Alien"))
+        {
+            FindObjectOfType<LevelController>().GameWon();
+        }
+        
         if (other.gameObject.CompareTag("Enemy Bullet") && !CompareTag("Explosion"))
         {
             
             Destroy(other.gameObject);
             if (CompareTag("Player"))
             {
-                if (playerLives == 3)
+                if (playerLives > 1)
                 {
 
                     playerLives--;
